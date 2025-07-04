@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>AR Facility View</title>
+    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+    <script src="https://raw.githack.com/AR-js-org/AR.js/3.4.2/aframe/build/aframe-ar.min.js"></script>
+    <style>
+      body { margin: 0; overflow: hidden; }
+      #back-btn {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        z-index: 2;
+        padding: 10px 14px;
+        background: #004080;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <button id="back-btn" onclick="history.back()">🔙 Back</button>
+
+    <a-scene
+      vr-mode-ui="enabled: false"
+      embedded
+      arjs="sourceType: webcam; debugUIEnabled: false;"
+    >
+      <a-camera gps-camera rotation-reader></a-camera>
+    </a-scene>
+
+    <script>
+      const facility = JSON.parse(sessionStorage.getItem("arFacility"));
+
+      if (facility && facility.lat && facility.lng) {
+        const scene = document.querySelector("a-scene");
+
+        const iconMap = {
+          "Enquiry Center": "🛎️", "Lift": "🛗", "Ticket Lobby": "🎫",
+          "Foot Over Bridge": "🌉", "Booking Office": "🧾", "Reservation": "🗂️",
+          "Food Court": "🍽️", "Restroom": "🚻", "Exit Gate": "🚪",
+          "Exit Platform": "🚉", "Help Desk": "🆘", "Water": "🚰",
+          "Washroom": "🚽", "Manager Office": "🧑‍💼"
+        };
+
+        const label = iconMap[facility.type] || "📍";
+
+        const entity = document.createElement("a-text");
+        entity.setAttribute("value", `${label} ${facility.name}`);
+        entity.setAttribute("look-at", "[gps-camera]");
+        entity.setAttribute("scale", "20 20 20");
+        entity.setAttribute("gps-entity-place", `latitude: ${facility.lat}; longitude: ${facility.lng}`);
+        entity.setAttribute("color", "#ff4444");
+
+        scene.appendChild(entity);
+      } else {
+        alert("No AR facility data found.");
+      }
+    </script>
+  </body>
+</html>

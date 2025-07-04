@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>View Railway Station Map</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: sans-serif;
+    }
+    #header {
+      background-color: #004080;
+      color: white;
+      text-align: center;
+      padding: 10px;
+      font-size: 18px;
+    }
+    #map {
+      height: calc(100% - 50px);
+    }
+  </style>
+</head>
+<body>
+  <div id="header">🚉 Station Map with Facility Markers</div>
+  <div id="map"></div>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+  <script>
+    const map = L.map('map').setView([17.6645, 75.8930], 18);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+    const emojiMap = {
+      "Enquiry Center": "🛎️", "Lift": "🛗", "Ticket Lobby": "🎫", "Foot Over Bridge": "🌉",
+      "Booking Office": "🧾", "Reservation": "🗂️", "Food Court": "🍽️", "Restroom": "🚻",
+      "Exit Gate": "🚪", "Exit Platform": "🚉", "Help Desk": "🆘", "Water": "🚰",
+      "Washroom": "🚽", "Manager Office": "🧑‍💼"
+    };
+
+    const facilities = [
+      { id: 1, type: "Enquiry Center", name: "Enquiry Office", lat: 17.66442249, lng: 75.89286652 },
+      { id: 2, type: "Lift", name: "Lift", lat: 17.66493125, lng: 75.89276071 },
+      { id: 3, type: "Ticket Lobby", name: "Chief Ticket Inspection (Lobby)", lat: 17.66403767, lng: 75.89325271 },
+      { id: 4, type: "Foot Over Bridge", name: "Way to P.F No. 2/3 & 4/5", lat: 17.66385063, lng: 75.89336544 },
+      { id: 5, type: "Booking Office", name: "Booking Office", lat: 17.6659392, lng: 75.8964188 },
+      { id: 6, type: "Reservation", name: "Reservation Center", lat: 17.66498232, lng: 75.89319221 },
+      { id: 7, type: "Food Court", name: "JAYM CATERS", lat: 17.66407068, lng: 75.89317914 },
+      { id: 8, type: "Restroom", name: "Upper Class Waiting Hall", lat: 17.66424694, lng: 75.89312772 },
+      { id: 9, type: "Exit Gate", name: "Exit", lat: 17.66428644, lng: 75.89309782 },
+      { id: 10, type: "Restroom", name: "Retiring Room", lat: 17.66432043, lng: 75.89308179 },
+      { id: 11, type: "Manager Office", name: "DY. Station Manager (C)", lat: 17.66435011, lng: 75.89303174 },
+      { id: 12, type: "Water", name: "Drinking Water", lat: 17.66606156, lng: 75.89217405 },
+      { id: 13, type: "Help Desk", name: "Child Help Desk", lat: 17.66583447, lng: 75.89232174 },
+      { id: 14, type: "Water", name: "Water Vending Machine", lat: 17.66531723, lng: 75.89266259 },
+      { id: 15, type: "Washroom", name: "Pay & Use Toilet", lat: 17.66491053, lng: 75.89276373 },
+      { id: 16, type: "Exit Platform", name: "Exit", lat: 17.66526645, lng: 75.89269127 },
+      { id: 17, type: "Food Court", name: "Fruit & Fruit Juice Stall", lat: 17.664558451, lng: 75.89294737 },
+      { id: 18, type: "Food Court", name: "Fruit Stall", lat: 17.66454822, lng: 75.89291376 },
+      { id: 19, type: "Food Court", name: "A. H. Wheeler & Co. Pvt. Ltd", lat: 17.66452004, lng: 75.8929217 }
+    ];
+
+    facilities.forEach(f => {
+      const emoji = emojiMap[f.type] || "📍";
+      const icon = L.divIcon({
+        html: `<div style="font-size:24px;">${emoji}</div>`,
+        className: ''
+      });
+      const popupContent = `${emoji} <b>${f.name}</b><br>${f.type}`;
+      L.marker([f.lat, f.lng], { icon }).addTo(map).bindPopup(popupContent);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Station Map (Dynamic)</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    html, body {
+      margin: 0; padding: 0; height: 100%;
+      font-family: sans-serif;
+    }
+    #header {
+      background-color: #004080;
+      color: white;
+      text-align: center;
+      padding: 10px;
+      font-size: 18px;
+    }
+    #map {
+      height: calc(100% - 50px);
+    }
+  </style>
+</head>
+<body>
+  <div id="header">🚉 Dynamic Facility Map</div>
+  <div id="map"></div>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    const map = L.map('map').setView([17.6645, 75.8930], 18);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+    const emojiMap = {
+      "Enquiry Center": "🛎️", "Lift": "🛗", "Ticket Lobby": "🎫", "Foot Over Bridge": "🌉",
+      "Booking Office": "🧾", "Reservation": "🗂️", "Food Court": "🍽️", "Restroom": "🚻",
+      "Exit Gate": "🚪", "Exit Platform": "🚉", "Help Desk": "🆘", "Water": "🚰",
+      "Washroom": "🚽", "Manager Office": "🧑‍💼"
+    };
+
+    async function loadFacilities() {
+      try {
+        const response = await fetch('http://localhost:8081/api/facilities');
+        const facilities = await response.json();
+
+        facilities.forEach(f => {
+          const emoji = emojiMap[f.type] || "📍";
+          const icon = L.divIcon({
+            html: `<div style="font-size:24px;">${emoji}</div>`,
+            className: ''
+          });
+          const popup = `${emoji} <b>${f.name}</b><br>${f.type}<br><i>${f.city}</i>`;
+          L.marker([f.latitude, f.longitude], { icon }).addTo(map).bindPopup(popup);
+        });
+
+      } catch (err) {
+        console.error("Error loading facilities:", err);
+        alert("Failed to load facilities.");
+      }
+    }
+
+    loadFacilities();
+  </script>
+</body>
+</html>

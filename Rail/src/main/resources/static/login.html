@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login/Register</title>
+  <link rel="stylesheet" href="login.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css" />
+</head>
+<body>
+  <div class="container">
+    <!-- Flip logic checkbox -->
+    <input type="checkbox" id="flip" />
+    
+    <!-- Front & Back Image Cover -->
+    <div class="cover">
+      <div class="front">
+        <img src="rail.jpeg" alt="Front" />
+      </div>
+      <div class="back">
+        <img src="rail.jpeg" alt="Back" />
+      </div>
+    </div>
+
+    <!-- Login and Register Forms -->
+    <div class="forms">
+      <div class="form-content">
+
+        <!-- Login Form -->
+        <div class="login-form">
+          <div class="title">Login</div>
+          <form id="loginForm">
+            <div class="input-boxes">
+              <div class="input-box"><i class="fas fa-envelope"></i><input type="email" id="loginEmail" placeholder="Email" required /></div>
+              <div class="input-box"><i class="fas fa-lock"></i><input type="password" id="loginPassword" placeholder="Password" required /></div>
+              <div class="input-box"><i class="fas fa-user-tag"></i>
+                <select id="role" required>
+                  <option value="" disabled selected>Select Role</option>
+                  <option value="Admin">Admin</option>
+                  <option value="StationMaster">Station Master</option>
+                  <option value="User">User</option>
+                </select>
+              </div>
+              <div class="text"><a href="ResetPage.html">Forgot password?</a></div>
+              <div class="button input-box"><input type="submit" value="Submit" /></div>
+              <div class="text sign-up-text">Don't have an account? <label for="flip">Register</label></div>
+            </div>
+          </form>
+        </div>
+
+        <!-- Register Form -->
+        <div class="signup-form scroll">
+          <div class="title">Register</div>
+          <form id="registerForm">
+            <div class="input-boxes">
+              <div class="input-box"><i class="fas fa-user"></i><input type="text" id="firstName" placeholder="First name" required /></div>
+              <div class="input-box"><i class="fas fa-user"></i><input type="text" id="lastName" placeholder="Last name" required /></div>
+              <div class="input-box"><i class="fas fa-envelope"></i><input type="email" id="registerEmail" placeholder="Email" required /></div>
+              <div class="input-box"><i class="fas fa-phone"></i><input type="text" id="phone" placeholder="Phone" pattern="\d*" required /></div>
+              <div class="input-box"><i class="fas fa-question-circle"></i>
+                <select id="securityQuestion" required>
+                  <option value="" disabled selected>Select a security question</option>
+                  <option value="What is your pet's name?">What is your pet's name?</option>
+                  <option value="What is your mother's maiden name?">What is your mother's name?</option>
+                  <option value="What was your first school?">What was your first school?</option>
+                  <option value="What is your favorite food?">What is your favorite food?</option>
+                </select>
+              </div>
+              <div class="input-box"><i class="fas fa-key"></i><input type="text" id="securityAnswer" placeholder="Answer" required /></div>
+              <div class="input-box"><i class="fas fa-lock"></i><input type="password" id="password" placeholder="Password" required /></div>
+              <div class="input-box"><i class="fas fa-lock"></i><input type="password" id="confirmPassword" placeholder="Confirm Password" required /></div>
+              <div id="passwordError" class="error"></div>
+              <div class="button input-box"><input type="submit" value="Submit" /></div>
+              <div class="text sign-up-text">Already have an account? <label for="flip">Login now</label></div>
+            </div>
+          </form>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Audio + Toastify + JS -->
+  <audio id="coffeeSound" preload="auto">
+    <source src="./sound/successed-295058.mp3" type="audio/mpeg" />
+  </audio>
+  <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+  <script src="login.js"></script>
+</body>
+</html>

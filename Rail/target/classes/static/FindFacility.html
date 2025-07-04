@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Find Facility</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" />
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(to bottom right, #e6f0ff, #ffffff);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .container {
+      background-color: white;
+      padding: 40px 30px;
+      border-radius: 14px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 420px;
+      text-align: center;
+      animation: fadeIn 0.6s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    h2 {
+      margin-bottom: 25px;
+      color: #004080;
+      font-weight: 600;
+    }
+
+    select, button {
+      width: 100%;
+      padding: 12px;
+      margin: 12px 0;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      outline: none;
+      transition: border-color 0.3s, transform 0.2s ease;
+    }
+
+    select:focus, button:focus {
+      border-color: #0077cc;
+    }
+
+    button {
+      background-color: #004080;
+      color: white;
+      font-weight: bold;
+      border: none;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0059b3;
+      transform: scale(1.02);
+    }
+
+    .logo {
+      font-size: 36px;
+      margin-bottom: 10px;
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-top: 20px;
+      color: #0077cc;
+      text-decoration: none;
+      font-size: 14px;
+      transition: color 0.3s;
+    }
+
+    .back-link:hover {
+      color: #004080;
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        padding: 30px 20px;
+      }
+
+      h2 {
+        font-size: 20px;
+      }
+
+      select, button {
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo">🚉</div>
+    <h2>Find Facility at Your Station</h2>
+
+    <select id="citySelect">
+      <option value="">🏙️ Select City</option>
+      <option value="Solapur">🌇 Solapur</option>
+      <option value="Pune">🌆 Pune</option>
+      <!-- Add more cities with emojis -->
+    </select>
+
+    <select id="facilitySelect">
+      <option value="">🔍 Select Facility</option>
+    </select>
+
+    <button onclick="startNavigation()">▶️ Start Navigation</button>
+
+    <a href="User.html" class="back-link">⬅️ Back to Home</a>
+  </div>
+
+  <script>
+    const citySelect = document.getElementById("citySelect");
+    const facilitySelect = document.getElementById("facilitySelect");
+
+    const emojiMap = {
+      "Enquiry Center": "🛎️",
+      "Lift": "🛗",
+      "Ticket Lobby": "🎫",
+      "Foot Over Bridge": "🌉",
+      "Booking Office": "🧾",
+      "Reservation": "🗂️",
+      "Food Court": "🍽️",
+      "Restroom": "🚻",
+      "Exit Gate": "🚪",
+      "Exit Platform": "🚉",
+      "Help Desk": "🆘",
+      "Water": "🚰",
+      "Washroom": "🚽",
+      "Manager Office": "🧑‍💼"
+    };
+
+    citySelect.addEventListener("change", async () => {
+      const city = citySelect.value;
+      if (!city) return;
+
+      facilitySelect.innerHTML = `<option>Loading...</option>`;
+
+      try {
+        const res = await fetch(`http://localhost:8081/api/facilities/city/${city}`);
+        const facilities = await res.json();
+
+        facilitySelect.innerHTML = `<option value="">🔍 Select Facility</option>`;
+        facilities.forEach(f => {
+          const icon = emojiMap[f.type] || "📍";
+          const option = document.createElement("option");
+          option.value = JSON.stringify(f);
+          option.textContent = `${icon} ${f.name}`;
+          facilitySelect.appendChild(option);
+        });
+      } catch (err) {
+        alert("Failed to fetch facilities. Check backend or CORS.");
+      }
+    });
+
+    function startNavigation() {
+      const selected = facilitySelect.value;
+      if (!selected) return alert("Please select a facility first.");
+      sessionStorage.setItem("selectedFacility", selected);
+      window.location.href = "navigate-map.html";
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Station Master Dashboard</title>
+  <link rel="stylesheet" href="station_master.css" />
+</head>
+<body>
+
+  <!-- Hamburger icon for small screens -->
+  <div class="hamburger" onclick="toggleSidebar()">☰</div>
+
+  <!-- Sidebar -->
+  <div class="sidebar" id="sidebar">
+    <a href="#" onclick="showDashboard()">🏠 Dashboard</a>
+    <a href="#" onclick="addFacility()">➕ Add Facility</a>
+    <a href="#" onclick="viewFacilities()">📄 View Facilities</a>
+    <a href="#" onclick="logout()">🚪 Logout</a>
+  </div>
+
+  <!-- Main content area -->
+  <div class="main-content">
+    <div class="header">Station Master Panel</div>
+    <div class="welcome-box" id="contentBox">
+      <h1>Welcome, Station Master!</h1>
+    </div>
+  </div>
+
+  <!-- Script -->
+  <script src="station_master.js"></script>
+</body>
+</html>

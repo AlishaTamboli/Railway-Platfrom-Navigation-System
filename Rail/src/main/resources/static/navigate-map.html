@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Station Navigation Assistant</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
+  <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+<script src="https://raw.githack.com/AR-js-org/AR.js/3.4.2/aframe/build/aframe-ar.min.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f4f6f9;
+    }
+
+    #header {
+      background-color: #004080;
+      color: white;
+      padding: 15px;
+      text-align: center;
+      font-size: 20px;
+      font-weight: bold;
+      position: relative;
+    }
+
+    .logo {
+      position: absolute;
+      right: 20px;
+      top: 10px;
+      height: 40px;
+    }
+
+    #map-container {
+      display: flex;
+      justify-content: center;
+      margin: 20px auto;
+    }
+
+    #map {
+      height: 75vh;
+      width: 90vw;
+      max-width: 1000px;
+      border: 2px solid #ccc;
+      border-radius: 12px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .controls {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      background-color: #d9534f;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .btn:hover {
+      background-color: #c9302c;
+    }
+
+    .custom-marker {
+      font-size: 24px;
+      line-height: 24px;
+    }
+    
+
+    .destination-marker {
+      font-size: 32px;
+      font-weight: bold;
+      z-index: 10000;
+    }
+    .controls {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+#ar-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 240px;
+  height: 180px;
+  border: 3px solid #004080;
+  border-radius: 12px;
+  overflow: hidden;
+  display: none;
+  z-index: 9999;
+}
+
+#ar-toggle-btn {
+  position: fixed;
+  bottom: 210px;
+  right: 20px;
+  padding: 10px 14px;
+  background-color: #5cb85c;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  z-index: 10000;
+}
+
+
+  </style>
+</head>
+
+
+<body>
+  <div id="header">
+    🗺️ Station Navigation Assistant
+  </div>
+
+  <div id="map-container">
+    <div id="map"></div>
+  </div>
+  <div class="controls">
+  <button class="btn" onclick="stopNavigation()">🛑 Stop Navigation</button>
+  <button class="btn" onclick="goBack()" style="background-color: #0275d8; margin-left: 10px;">🔙 Back</button>
+<!-- AR Toggle Button -->
+<button id="ar-toggle-btn" onclick="toggleAR()">📱 Enable AR</button>
+
+<!-- AR Camera View -->
+<div id="ar-container">
+  <a-scene
+    vr-mode-ui="enabled: false"
+    embedded
+    arjs="sourceType: webcam; debugUIEnabled: false;"
+  >
+    <a-camera gps-camera rotation-reader></a-camera>
+  </a-scene>
+</div>
+</div>
+
+
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.min.js"></script>
+
+  <script>
+
+
+    function goBack() {
+  window.history.back(); // or: window.location.href = 'find-facility.html';
+}
+
+    const rawFacility = JSON.parse(sessionStorage.getItem("selectedFacility"));
+const facility = {
+  ...rawFacility,
+  lat: rawFacility.lat || rawFacility.latitude,
+  lng: rawFacility.lng || rawFacility.longitude
+};
+
+if (!facility || !facility.lat || !facility.lng) {
+  alert("No facility selected or invalid data. Please go back and select a facility.");
+  throw new Error("Facility not properly set in sessionStorage.");
+}
+
+
+    const emojiMap = {
+      "Enquiry Center": "🛎️", "Lift": "🛗", "Ticket Lobby": "🎫", "Foot Over Bridge": "🌉",
+      "Booking Office": "🧾", "Reservation": "🗂️", "Food Court": "🍽️", "Restroom": "🚻",
+      "Exit Gate": "🚪", "Exit Platform": "🚉", "Help Desk": "🆘", "Water": "🚰",
+      "Washroom": "🚽", "Manager Office": "🧑‍💼"
+    };
+
+    const map = L.map('map').setView([facility.lat, facility.lng], 18);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+    const destinationIcon = L.divIcon({
+      html: `<div class="destination-marker">${emojiMap[facility.type] || "📍"}</div>`,
+      className: ''
+    });
+
+    let routingControl;
+
+    function speak(text) {
+      const msg = new SpeechSynthesisUtterance(text);
+      msg.lang = 'en-IN';
+      msg.rate = 1;
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(msg);
+    }
+
+    function startNavigation(userLatLng) {
+      routingControl = L.Routing.control({
+        waypoints: [
+          L.latLng(userLatLng),
+          L.latLng(facility.lat, facility.lng)
+        ],
+        routeWhileDragging: false,
+        showAlternatives: false,
+        createMarker: () => null
+      }).addTo(map);
+
+      L.marker([facility.lat, facility.lng], { icon: destinationIcon })
+        .addTo(map)
+        .bindPopup(`<b>${facility.name}</b><br>${facility.type}`);
+
+      routingControl.on('routesfound', () => {
+        speak("Navigation started. Follow the path.");
+      });
+    }
+
+    function stopNavigation() {
+      if (routingControl) {
+        map.removeControl(routingControl);
+        speak("Navigation stopped.");
+      }
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      position => {
+        const userLatLng = [position.coords.latitude, position.coords.longitude];
+        L.marker(userLatLng).addTo(map).bindPopup("🧍 You are here").openPopup();
+        startNavigation(userLatLng);
+      },
+      () => alert("Please allow location access to start navigation.")
+    );
+
+    function toggleAR() {
+  const arDiv = document.getElementById("ar-container");
+  arDiv.style.display = arDiv.style.display === "none" ? "block" : "none";
+}
+
+// Inject AR marker into scene if present
+window.addEventListener("load", () => {
+  const scene = document.querySelector("#ar-container a-scene");
+  const iconMap = {
+    "Enquiry Center": "🛎️", "Lift": "🛗", "Ticket Lobby": "🎫", "Foot Over Bridge": "🌉",
+    "Booking Office": "🧾", "Reservation": "🗂️", "Food Court": "🍽️", "Restroom": "🚻",
+    "Exit Gate": "🚪", "Exit Platform": "🚉", "Help Desk": "🆘", "Water": "🚰",
+    "Washroom": "🚽", "Manager Office": "🧑‍💼"
+  };
+  const label = iconMap[facility.type] || "📍";
+
+  const marker = document.createElement("a-text");
+  marker.setAttribute("value", `${label} ${facility.name}`);
+  marker.setAttribute("look-at", "[gps-camera]");
+  marker.setAttribute("scale", "20 20 20");
+  marker.setAttribute("gps-entity-place", `latitude: ${facility.lat}; longitude: ${facility.lng}`);
+  marker.setAttribute("color", "#ff4444");
+
+  scene.appendChild(marker);
+});
+function loadARView() {
+  const facility = JSON.parse(sessionStorage.getItem("selectedFacility"));
+  if (!facility) {
+    alert("No facility selected for AR view.");
+    return;
+  }
+
+  const scene = document.querySelector("a-scene");
+
+  // Text label for facility
+  const label = document.createElement("a-text");
+  label.setAttribute("value", `${facility.name}`);
+  label.setAttribute("look-at", "[gps-camera]");
+  label.setAttribute("scale", "20 20 20");
+  label.setAttribute("gps-entity-place", `latitude: ${facility.lat}; longitude: ${facility.lng}`);
+  scene.appendChild(label);
+
+  // ✅ Arrow pointing toward the facility
+  const arrow = document.createElement("a-image");
+  arrow.setAttribute("src", "https://cdn-icons-png.flaticon.com/512/545/545682.png"); // arrow icon
+  arrow.setAttribute("scale", "20 20 20");
+  arrow.setAttribute("look-at", "[gps-camera]");
+  arrow.setAttribute("gps-entity-place", `latitude: ${facility.lat}; longitude: ${facility.lng}`);
+  scene.appendChild(arrow);
+}
+
+
+  </script>
+</body>
+</html>
