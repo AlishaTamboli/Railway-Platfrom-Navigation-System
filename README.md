@@ -63,7 +63,7 @@ Go to Settings > Pages
 Set the source as the main branch and folder as /root
 
 Visit your public URL
----
+
 ##🛠 How It Works
 The user enables location (navigator.geolocation)
 
@@ -76,7 +76,7 @@ Leaflet draws a dashed polyline between the points
 Distance & time are displayed
 
 Navigation stops automatically on reaching destination
----
+
 ##🧪 Future Enhancements##
 ✅ Real-time route recalculations
 
