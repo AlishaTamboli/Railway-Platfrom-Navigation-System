@@ -57,7 +57,7 @@ git clone https://github.com/your-username/Railway-Navigation-System-Solapur.git
 cd Railway-Navigation-System-Solapur
 open index.html
 
-Option 2: Deploy to GitHub Pages
+###Option 2: Deploy to GitHub Pages
 Go to Settings > Pages
 
 Set the source as the main branch and folder as /root
